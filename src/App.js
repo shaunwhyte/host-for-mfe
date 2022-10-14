@@ -16,33 +16,40 @@ const RemoteWrapper = ({ children }) => (
   </div>
 );
 
-
-
 export const App = () => {
  
   let [name, setName] = useState("");
-
+  let [messages, setMessages] = useState([]);
+ 
   useEffect( () => {
-    console.log("jnreugneormg")
+    console.log("use effect runnning ")
       getObservable().pipe(
-        tap(t => {
-            console.log("Got ", t);
-            setName(t);
+        tap(msg => {
+            console.log("Got ", msg);
+            let data = msg.replace("Server:", "").replace("Connection:", "").replace("Message:", "");
+            if(msg.includes("Server:")){
+              setName(data);
+            }
+            if(msg.includes("Message:")){
+              setMessages([...messages, data]);
+            }
         })
       ).subscribe();
-  }, []);
+  }, [messages, name]);
 
   return (
-    <div style={{ background: "rgba(43, 192, 219, 0.3)" }}>
+    <div style={{ minHeight: "500px", background: "rgba(43, 192, 219, 0.3)" }}>
     <h2>Host App:</h2>
     <h3>{name}</h3>
     <h2>Remote App:</h2>
     <RemoteWrapper>
       <RemoteApp />
     </RemoteWrapper>
-
     <br />
-    <a href="http://localhost:4000">Link to Remote App</a>
+    <div>Messages: {messages.map( (t, index) => {
+      return <div key={index} >{t} <br></br></div> ;
+    }) }
+    </div>
   </div>
   )
 }
